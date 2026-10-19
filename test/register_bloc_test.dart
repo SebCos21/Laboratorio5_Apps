@@ -51,7 +51,7 @@ class FakeProfileRepository implements ProfileRepository {
 }
 
 void main() {
-  const event = OnRegisterSubmittedEvent(
+  const event = RegisterSubmitted(
     username: 'ana',
     fullName: 'Ana Gómez',
     email: 'ana@icesi.edu.co',
@@ -67,18 +67,28 @@ void main() {
     );
   }
 
-  setUp(() {
+  test('emite loading y success con el Profile guardado', () async {
     auth = FakeAuthRepository();
     profile = FakeProfileRepository();
-  });
-
-  test('emite loading y success, y guarda el perfil con el id de Auth', () async {
     final bloc = buildBloc();
+
     final expectation = expectLater(
       bloc.stream,
       emitsInOrder(<Matcher>[
-        isA<RegisterLoadingState>(),
-        isA<RegisterSuccessState>(),
+        isA<RegisterState>().having(
+          (state) => state.status,
+          'status',
+          RegisterStatus.loading,
+        ),
+        isA<RegisterState>()
+            .having((state) => state.status, 'status', RegisterStatus.success)
+            .having((state) => state.profile?.username, 'username', 'ana')
+            .having((state) => state.profile?.fullName, 'fullName', 'Ana Gómez')
+            .having(
+              (state) => state.profile?.email,
+              'email',
+              'ana@icesi.edu.co',
+            ),
       ]),
     );
 
@@ -88,19 +98,28 @@ void main() {
     expect(auth.calls, 1);
     expect(profile.calls, 1);
     expect(profile.lastId, 'user-1');
-    expect(profile.lastUsername, 'ana');
-    expect(profile.lastFullName, 'Ana Gómez');
-    expect(profile.lastEmail, 'ana@icesi.edu.co');
   });
 
-  test('emite loading y error cuando Auth falla, sin tocar profiles', () async {
+  test('emite loading y failure cuando Auth falla, sin tocar profiles', () async {
     auth = FakeAuthRepository(error: Exception('correo ya registrado'));
+    profile = FakeProfileRepository();
     final bloc = buildBloc();
+
     final expectation = expectLater(
       bloc.stream,
       emitsInOrder(<Matcher>[
-        isA<RegisterLoadingState>(),
-        isA<RegisterErrorState>(),
+        isA<RegisterState>().having(
+          (state) => state.status,
+          'status',
+          RegisterStatus.loading,
+        ),
+        isA<RegisterState>()
+            .having((state) => state.status, 'status', RegisterStatus.failure)
+            .having(
+              (state) => state.errorMessage,
+              'errorMessage',
+              isNotEmpty,
+            ),
       ]),
     );
 

@@ -62,7 +62,12 @@ crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvi�
 
 - ✅ Pasos 1 a 9 del mapa: registro completo por las capas
   (`RegisterBloc` → `SignUpUseCase` → repositorios → data sources → Supabase).
-- ✅ `RegisterBloc` sin Supabase: solo loading, success y el mensaje de error.
+- ✅ Paso 1 con la forma de la guía: `RegisterState` es una sola clase con
+  `RegisterStatus { initial, loading, success, failure }` y `copyWith`; el
+  `success` lleva el `Profile` y el `failure` el mensaje de error.
+- ✅ `RegisterBloc` sin Supabase: llama a `SignUpUseCase` una sola vez y espera
+  el `Profile`; `SignUpUseCase` es quien reparte los datos entre Auth y
+  `profiles`.
 - ✅ Pantallas del proyecto base con el `Bloc` conectado.
 - ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
 - ⏳ `HomeScreen`: pasarle los datos reales del usuario y que `Cerrar sesión`

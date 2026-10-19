@@ -4,15 +4,15 @@ abstract class RegisterEvent {
 }
 
 /// El usuario envió el formulario de registro.
-class OnRegisterSubmittedEvent extends RegisterEvent {
-  final String fullName;
+class RegisterSubmitted extends RegisterEvent {
   final String username;
+  final String fullName;
   final String email;
   final String password;
 
-  const OnRegisterSubmittedEvent({
-    required this.fullName,
+  const RegisterSubmitted({
     required this.username,
+    required this.fullName,
     required this.email,
     required this.password,
   });

@@ -58,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // El formulario solo lanza el evento: el Bloc decide qué pasa después.
     context.read<RegisterBloc>().add(
-      OnRegisterSubmittedEvent(
+      RegisterSubmitted(
         fullName: fullName,
         username: username,
         email: email,
@@ -76,18 +76,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
           padding: const EdgeInsets.all(24),
           child: BlocListener<RegisterBloc, RegisterState>(
             listenWhen: (previous, current) =>
-                current is RegisterSuccessState,
+                previous.status != RegisterStatus.success &&
+                current.status == RegisterStatus.success,
             listener: (context, state) {
               Navigator.pushReplacementNamed(context, '/home');
             },
             child: BlocBuilder<RegisterBloc, RegisterState>(
               builder: (context, state) {
-                final errorMessage = state is RegisterErrorState
+                final errorMessage =
+                    state.status == RegisterStatus.failure
                     ? state.errorMessage
                     : _validationError;
 
                 return _buildForm(
-                  isLoading: state is RegisterLoadingState,
+                  isLoading: state.status == RegisterStatus.loading,
                   errorMessage: errorMessage,
                 );
               },

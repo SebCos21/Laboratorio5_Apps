@@ -5,39 +5,52 @@ import '../../../auth/domain/usecases/sign_up_usecase.dart';
 import 'register_event.dart';
 import 'register_state.dart';
 
-/// Bloc del formulario de registro.
+/// Bloc del formulario de registro (paso 1 del mapa).
 ///
-/// No habla con Supabase: delega en [SignUpUseCase], que reparte los datos
-/// entre Auth y la tabla `profiles`. Aquí solo se maneja loading, success y
-/// el mensaje de error que ve el usuario.
+/// No sabe que registrar son dos pasos: llama a [SignUpUseCase] una sola vez
+/// y espera el `Profile`. Quien reparte los datos entre Auth y la tabla
+/// `profiles` es el caso de uso.
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
-  final SignUpUseCase signUpUseCase;
+  final SignUpUseCase _signUp;
 
-  RegisterBloc(this.signUpUseCase) : super(RegisterIdleState()) {
-    on<OnRegisterSubmittedEvent>(register);
+  RegisterBloc(this._signUp) : super(const RegisterState()) {
+    on<RegisterSubmitted>(_onSubmitted);
   }
 
-  Future<void> register(
-    OnRegisterSubmittedEvent event,
+  Future<void> _onSubmitted(
+    RegisterSubmitted event,
     Emitter<RegisterState> emit,
   ) async {
-    emit(RegisterLoadingState());
+    emit(state.copyWith(status: RegisterStatus.loading));
 
     try {
-      await signUpUseCase(
-        email: event.email,
-        password: event.password,
+      final profile = await _signUp(
         username: event.username,
         fullName: event.fullName,
+        email: event.email,
+        password: event.password,
       );
-      emit(RegisterSuccessState());
+      emit(
+        state.copyWith(status: RegisterStatus.success, profile: profile),
+      );
     } on AuthException catch (error) {
-      emit(RegisterErrorState(errorMessage: error.message));
+      emit(
+        state.copyWith(
+          status: RegisterStatus.failure,
+          errorMessage: error.message,
+        ),
+      );
     } on PostgrestException catch (error) {
-      emit(RegisterErrorState(errorMessage: error.message));
+      emit(
+        state.copyWith(
+          status: RegisterStatus.failure,
+          errorMessage: error.message,
+        ),
+      );
     } catch (_) {
       emit(
-        const RegisterErrorState(
+        state.copyWith(
+          status: RegisterStatus.failure,
           errorMessage: 'No se pudo crear la cuenta. Intenta de nuevo.',
         ),
       );
