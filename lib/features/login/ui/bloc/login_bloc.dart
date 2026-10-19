@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../auth/domain/errors/app_exception.dart';
 import '../../../auth/domain/usecases/sign_in_usecase.dart';
 import 'login_event.dart';
 import 'login_state.dart';
@@ -29,14 +29,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         password: event.password,
       );
       emit(state.copyWith(status: LoginStatus.success, profile: profile));
-    } on AuthException catch (error) {
-      emit(
-        state.copyWith(
-          status: LoginStatus.failure,
-          errorMessage: error.message,
-        ),
-      );
-    } on PostgrestException catch (error) {
+    } on AppException catch (error) {
       emit(
         state.copyWith(
           status: LoginStatus.failure,

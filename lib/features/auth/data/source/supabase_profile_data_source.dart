@@ -1,33 +1,43 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/entities/profile.dart';
+import '../../domain/errors/app_exception.dart';
 
 /// El único archivo que escribe y lee tu tabla `profiles` (paso 7 y Parte 2).
 ///
 /// En Dart el campo se llama `fullName`; en la tabla, la columna es
-/// `full_name`. Este archivo es el único que conoce esa diferencia.
+/// `full_name`. Este archivo es el único que conoce esa diferencia y el que
+/// traduce los errores de Supabase a [AppException].
 class SupabaseProfileDataSource {
   final SupabaseClient _client;
 
   SupabaseProfileDataSource(this._client);
 
   Future<void> createProfile(Profile profile) async {
-    await _client.from('profiles').insert({
-      'id': profile.id,
-      'username': profile.username,
-      'full_name': profile.fullName,
-      'email': profile.email,
-    });
+    try {
+      await _client.from('profiles').insert({
+        'id': profile.id,
+        'username': profile.username,
+        'full_name': profile.fullName,
+        'email': profile.email,
+      });
+    } on PostgrestException catch (error) {
+      throw AppException(error.message);
+    }
   }
 
   Future<Profile> getProfile(String id) async {
-    final row = await _client.from('profiles').select().eq('id', id).single();
+    try {
+      final row = await _client.from('profiles').select().eq('id', id).single();
 
-    return Profile(
-      id: row['id'] as String,
-      username: row['username'] as String,
-      fullName: row['full_name'] as String,
-      email: row['email'] as String? ?? '',
-    );
+      return Profile(
+        id: row['id'] as String,
+        username: row['username'] as String,
+        fullName: row['full_name'] as String,
+        email: row['email'] as String? ?? '',
+      );
+    } on PostgrestException catch (error) {
+      throw AppException(error.message);
+    }
   }
 }

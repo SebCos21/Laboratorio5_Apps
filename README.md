@@ -212,6 +212,8 @@ Reglas que sigue el código:
   este repo por la columna `not null`).
 - Cada repositorio habla con **su** entidad: Auth devuelve `AuthUser` y
   `profiles` devuelve `Profile`.
+- Los data sources traducen `AuthException` y `PostgrestException` a
+  `AppException`; por eso los blocs no importan `supabase_flutter`.
 - Un caso de uso es el único que conoce los dos lados y decide el orden.
 - El `Bloc` no sabe que hay dos pasos: llama una vez al caso de uso y espera un
   `Profile`.
@@ -231,6 +233,7 @@ lib/
     │   ├── domain/
     │   │   ├── entities/auth_user.dart            # id + email (lo de Auth)
     │   │   ├── entities/profile.dart              # id + username + fullName (+ email)
+    │   │   ├── errors/app_exception.dart          # error de dominio (sin SDK)
     │   │   ├── repository/auth_repository.dart    # signUp, signIn, signOut
     │   │   ├── repository/profile_repository.dart # createProfile, getProfile
     │   │   └── usecases/

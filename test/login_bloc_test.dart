@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:laboratorio5_apps/features/auth/domain/errors/app_exception.dart';
 import 'package:laboratorio5_apps/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:laboratorio5_apps/features/login/ui/bloc/login_bloc.dart';
 import 'package:laboratorio5_apps/features/login/ui/bloc/login_event.dart';
@@ -72,4 +73,35 @@ void main() {
       expect(profiles.getProfileCalls, 0);
     },
   );
+
+  test('muestra el mensaje de AppException, sin leer profiles', () async {
+    final auth = FakeAuthRepository(
+      signInError: const AppException('Credenciales inválidas'),
+    );
+    final profiles = FakeProfileRepository();
+    final bloc = LoginBloc(SignInUseCase(auth, profiles));
+
+    final expectation = expectLater(
+      bloc.stream,
+      emitsInOrder(<Matcher>[
+        isA<LoginState>().having(
+          (state) => state.status,
+          'status',
+          LoginStatus.loading,
+        ),
+        isA<LoginState>()
+            .having((state) => state.status, 'status', LoginStatus.failure)
+            .having(
+              (state) => state.errorMessage,
+              'errorMessage',
+              'Credenciales inválidas',
+            ),
+      ]),
+    );
+
+    bloc.add(event);
+    await expectation;
+
+    expect(profiles.getProfileCalls, 0);
+  });
 }

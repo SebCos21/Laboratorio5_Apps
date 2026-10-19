@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:laboratorio5_apps/features/auth/domain/errors/app_exception.dart';
 import 'package:laboratorio5_apps/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:laboratorio5_apps/features/register/ui/bloc/register_bloc.dart';
 import 'package:laboratorio5_apps/features/register/ui/bloc/register_event.dart';
@@ -90,4 +91,35 @@ void main() {
       expect(profile.calls, 0);
     },
   );
+
+  test('muestra el mensaje de AppException, sin tocar profiles', () async {
+    auth = FakeAuthRepository(
+      error: const AppException('El correo ya está registrado'),
+    );
+    profile = FakeProfileRepository();
+    final bloc = buildBloc();
+
+    final expectation = expectLater(
+      bloc.stream,
+      emitsInOrder(<Matcher>[
+        isA<RegisterState>().having(
+          (state) => state.status,
+          'status',
+          RegisterStatus.loading,
+        ),
+        isA<RegisterState>()
+            .having((state) => state.status, 'status', RegisterStatus.failure)
+            .having(
+              (state) => state.errorMessage,
+              'errorMessage',
+              'El correo ya está registrado',
+            ),
+      ]),
+    );
+
+    bloc.add(event);
+    await expectation;
+
+    expect(profile.calls, 0);
+  });
 }
