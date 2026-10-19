@@ -15,6 +15,11 @@ flutter run
 `main.dart` ya inicializa Supabase con el proyecto del laboratorio, así que no
 hay que configurar credenciales.
 
+> **Tabla `profiles`**: la guía usa tres columnas (`id`, `username`,
+> `full_name`); las migraciones de este repo además tienen `email not null`, así
+> que `Profile` y el `insert` incluyen `email`. Si tu tabla tiene solo tres
+> columnas, quita la línea `'email': profile.email` del data source.
+
 ## Estructura
 
 ```
@@ -82,6 +87,8 @@ crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvi�
 - ✅ Paso 6: `SupabaseAuthDataSource` recibe el `SupabaseClient` por
   constructor, valida `response.user` y lo convierte en `AuthUser`;
   `AuthRepositoryImpl` delega en él.
+- ✅ Paso 7: `SupabaseProfileDataSource` también recibe el cliente y es el único
+  que traduce `fullName` → `full_name`; `ProfileRepositoryImpl` delega en él.
 - ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
 - ⏳ **Paso 9**: `HomeScreen` debe leer el `Profile` que llega en
   `ModalRoute.of(context)!.settings.arguments` en lugar de usar los datos de

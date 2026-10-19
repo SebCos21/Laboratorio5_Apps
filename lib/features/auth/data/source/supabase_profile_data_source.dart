@@ -2,13 +2,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/entities/profile.dart';
 
-/// Único lugar que escribe en tu tabla `profiles` (paso 7 del mapa).
+/// El único archivo que escribe en tu tabla `profiles` (paso 7 del mapa).
+///
+/// En Dart el campo se llama `fullName`; en la tabla, la columna es
+/// `full_name`. Este archivo es el único que conoce esa diferencia.
 class SupabaseProfileDataSource {
-  const SupabaseProfileDataSource();
+  final SupabaseClient _client;
 
-  /// Inserta la fila del perfil con el `id` que devolvió Auth.
+  SupabaseProfileDataSource(this._client);
+
   Future<void> createProfile(Profile profile) async {
-    await Supabase.instance.client.from('profiles').insert({
+    await _client.from('profiles').insert({
       'id': profile.id,
       'username': profile.username,
       'full_name': profile.fullName,

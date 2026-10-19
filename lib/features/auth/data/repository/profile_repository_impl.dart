@@ -2,14 +2,15 @@ import '../../domain/entities/profile.dart';
 import '../../domain/repository/profile_repository.dart';
 import '../source/supabase_profile_data_source.dart';
 
-/// Implementa el contrato del perfil con el data source de Supabase (paso 7).
+/// Cumple el contrato del perfil igual que `AuthRepositoryImpl`: recibe el
+/// data source por constructor y delega en él (paso 7).
 class ProfileRepositoryImpl implements ProfileRepository {
-  final SupabaseProfileDataSource dataSource;
+  final SupabaseProfileDataSource _dataSource;
 
-  const ProfileRepositoryImpl(this.dataSource);
+  ProfileRepositoryImpl(this._dataSource);
 
   @override
   Future<void> createProfile(Profile profile) {
-    return dataSource.createProfile(profile);
+    return _dataSource.createProfile(profile);
   }
 }

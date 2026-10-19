@@ -49,8 +49,10 @@ class App extends StatelessWidget {
 
 /// Arma las capas de adentro: data source -> repositorio -> caso de uso.
 SignUpUseCase _buildSignUpUseCase() {
+  final client = Supabase.instance.client;
+
   return SignUpUseCase(
-    AuthRepositoryImpl(SupabaseAuthDataSource(Supabase.instance.client)),
-    const ProfileRepositoryImpl(SupabaseProfileDataSource()),
+    AuthRepositoryImpl(SupabaseAuthDataSource(client)),
+    ProfileRepositoryImpl(SupabaseProfileDataSource(client)),
   );
 }
