@@ -89,6 +89,9 @@ crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvi�
   `AuthRepositoryImpl` delega en él.
 - ✅ Paso 7: `SupabaseProfileDataSource` también recibe el cliente y es el único
   que traduce `fullName` → `full_name`; `ProfileRepositoryImpl` delega en él.
+- ✅ Paso 8: `main.dart` inicializa Supabase y arma la cadena completa dentro
+  del `create` de `/register` (`RegisterBloc` → `SignUpUseCase` → las dos
+  ramas de repositorios y data sources).
 - ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
 - ⏳ **Paso 9**: `HomeScreen` debe leer el `Profile` que llega en
   `ModalRoute.of(context)!.settings.arguments` en lugar de usar los datos de

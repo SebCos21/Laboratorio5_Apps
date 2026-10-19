@@ -38,21 +38,22 @@ class App extends StatelessWidget {
       routes: {
         '/login': (_) => const LoginScreen(),
         '/register': (_) => BlocProvider(
-          create: (_) => RegisterBloc(_buildSignUpUseCase()),
+          // El `create` es el único lugar donde se arma la cadena completa,
+          // con sus dos ramas.
+          create: (_) => RegisterBloc(
+            SignUpUseCase(
+              AuthRepositoryImpl(
+                SupabaseAuthDataSource(Supabase.instance.client),
+              ),
+              ProfileRepositoryImpl(
+                SupabaseProfileDataSource(Supabase.instance.client),
+              ),
+            ),
+          ),
           child: const RegisterScreen(),
         ),
         '/home': (_) => const HomeScreen(),
       },
     );
   }
-}
-
-/// Arma las capas de adentro: data source -> repositorio -> caso de uso.
-SignUpUseCase _buildSignUpUseCase() {
-  final client = Supabase.instance.client;
-
-  return SignUpUseCase(
-    AuthRepositoryImpl(SupabaseAuthDataSource(client)),
-    ProfileRepositoryImpl(SupabaseProfileDataSource(client)),
-  );
 }
