@@ -53,7 +53,12 @@ void main() {
 
     expect(auth.calls, 1);
     expect(profile.calls, 1);
-    expect(profile.lastId, 'user-1');
+
+    final saved = profile.received.single;
+    expect(saved.id, 'user-1');
+    expect(saved.username, 'ana');
+    expect(saved.fullName, 'Ana Gómez');
+    expect(saved.email, 'ana@icesi.edu.co');
   });
 
   test('emite loading y failure cuando Auth falla, sin tocar profiles', () async {

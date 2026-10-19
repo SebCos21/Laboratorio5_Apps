@@ -8,7 +8,7 @@ import '../repository/profile_repository.dart';
 /// Es la única pieza que conoce las dos columnas del mapa:
 ///
 /// 1. **Auth**: crea la cuenta con correo y contraseña y devuelve el `id`.
-/// 2. **profiles**: guarda el perfil con ese `id`.
+/// 2. **profiles**: arma el `Profile` con ese `id` y el contrato lo guarda.
 ///
 /// Devuelve el `Profile` porque es lo que la app necesita mostrar después.
 class SignUpUseCase {
@@ -33,11 +33,15 @@ class SignUpUseCase {
     );
 
     // 2º profiles, con el id que devolvió Auth.
-    return profileRepository.createProfile(
+    final profile = Profile(
       id: user.id,
       username: username,
       fullName: fullName,
       email: email,
     );
+
+    await profileRepository.createProfile(profile);
+
+    return profile;
   }
 }

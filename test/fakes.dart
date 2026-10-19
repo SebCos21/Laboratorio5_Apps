@@ -21,26 +21,14 @@ class FakeAuthRepository implements AuthRepository {
   }
 }
 
-/// Doble de profiles: guarda lo que recibe para poder verificarlo.
+/// Doble de profiles: guarda los perfiles que recibe para verificarlos.
 class FakeProfileRepository implements ProfileRepository {
-  int calls = 0;
-  String? lastId;
-  String? lastUsername;
-  String? lastFullName;
-  String? lastEmail;
+  final List<Profile> received = [];
+
+  int get calls => received.length;
 
   @override
-  Future<Profile> createProfile({
-    required String id,
-    required String username,
-    required String fullName,
-    required String email,
-  }) async {
-    calls++;
-    lastId = id;
-    lastUsername = username;
-    lastFullName = fullName;
-    lastEmail = email;
-    return Profile(id: id, username: username, fullName: fullName, email: email);
+  Future<void> createProfile(Profile profile) async {
+    received.add(profile);
   }
 }

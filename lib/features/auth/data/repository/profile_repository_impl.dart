@@ -9,17 +9,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   const ProfileRepositoryImpl(this.dataSource);
 
   @override
-  Future<Profile> createProfile({
-    required String id,
-    required String username,
-    required String fullName,
-    required String email,
-  }) {
-    return dataSource.createProfile(
-      id: id,
-      username: username,
-      fullName: fullName,
-      email: email,
-    );
+  Future<void> createProfile(Profile profile) {
+    return dataSource.createProfile(profile);
   }
 }

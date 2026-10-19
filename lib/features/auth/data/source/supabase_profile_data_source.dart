@@ -7,24 +7,12 @@ class SupabaseProfileDataSource {
   const SupabaseProfileDataSource();
 
   /// Inserta la fila del perfil con el `id` que devolvió Auth.
-  Future<Profile> createProfile({
-    required String id,
-    required String username,
-    required String fullName,
-    required String email,
-  }) async {
+  Future<void> createProfile(Profile profile) async {
     await Supabase.instance.client.from('profiles').insert({
-      'id': id,
-      'username': username,
-      'full_name': fullName,
-      'email': email,
+      'id': profile.id,
+      'username': profile.username,
+      'full_name': profile.fullName,
+      'email': profile.email,
     });
-
-    return Profile(
-      id: id,
-      username: username,
-      fullName: fullName,
-      email: email,
-    );
   }
 }
