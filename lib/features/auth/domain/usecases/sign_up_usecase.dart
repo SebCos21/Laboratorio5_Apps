@@ -20,10 +20,7 @@ class SignUpUseCase {
     required String password,
   }) async {
     // 1º Auth: crea la cuenta y devuelve el id.
-    final AuthUser user = await _auth.signUp(
-      email: email,
-      password: password,
-    );
+    final AuthUser user = await _auth.signUp(email: email, password: password);
 
     // 2º profiles: arma la entidad con ese id.
     final profile = Profile(

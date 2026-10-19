@@ -7,4 +7,7 @@ import '../entities/profile.dart';
 abstract class ProfileRepository {
   /// Guarda la fila del perfil (ya trae el `id` que devolvió Auth).
   Future<void> createProfile(Profile profile);
+
+  /// Trae el perfil que corresponde al `id` que devolvió Auth.
+  Future<Profile> getProfile(String id);
 }

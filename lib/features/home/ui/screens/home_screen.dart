@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:laboratorio5_apps/components/primary_button.dart';
 import 'package:laboratorio5_apps/components/profile_field.dart';
+import 'package:laboratorio5_apps/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:laboratorio5_apps/theme/app_theme.dart';
 
 /// Shows the profile of the signed in user and lets them sign out.
@@ -10,14 +11,21 @@ class HomeScreen extends StatelessWidget {
   final String fullName;
   final String email;
 
+  /// Cierra la sesión en Auth antes de volver a `/login`.
+  final SignOutUseCase signOut;
+
   const HomeScreen({
     super.key,
     this.username = 'usuario',
     this.fullName = 'Nombre Apellido',
     this.email = 'correo@ejemplo.com',
+    required this.signOut,
   });
 
-  void _signOut(BuildContext context) {
+  Future<void> _signOut(BuildContext context) async {
+    await signOut();
+
+    if (!context.mounted) return;
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 

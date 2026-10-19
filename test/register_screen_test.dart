@@ -15,10 +15,13 @@ void main() {
       theme: buildTheme(),
       initialRoute: '/register',
       routes: {
-        '/register': (_) =>
-            BlocProvider<RegisterBloc>.value(value: bloc, child: const RegisterScreen()),
+        '/register': (_) => BlocProvider<RegisterBloc>.value(
+          value: bloc,
+          child: const RegisterScreen(),
+        ),
         '/home': (context) {
-          final profile = ModalRoute.of(context)?.settings.arguments as Profile?;
+          final profile =
+              ModalRoute.of(context)?.settings.arguments as Profile?;
           return Scaffold(
             body: Center(child: Text('Perfil de ${profile?.username}')),
           );
@@ -44,10 +47,7 @@ void main() {
 
   testWidgets('al registrarse navega a /home con el Profile', (tester) async {
     final bloc = RegisterBloc(
-      SignUpUseCase(
-        FakeAuthRepository(),
-        FakeProfileRepository(),
-      ),
+      SignUpUseCase(FakeAuthRepository(), FakeProfileRepository()),
     );
 
     await tester.pumpWidget(buildApp(bloc));
@@ -63,9 +63,7 @@ void main() {
   ) async {
     final bloc = RegisterBloc(
       SignUpUseCase(
-        FakeAuthRepository(
-          error: Exception('correo ya registrado'),
-        ),
+        FakeAuthRepository(error: Exception('correo ya registrado')),
         FakeProfileRepository(),
       ),
     );

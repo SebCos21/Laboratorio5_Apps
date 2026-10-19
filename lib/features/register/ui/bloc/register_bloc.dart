@@ -30,9 +30,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         email: event.email,
         password: event.password,
       );
-      emit(
-        state.copyWith(status: RegisterStatus.success, profile: profile),
-      );
+      emit(state.copyWith(status: RegisterStatus.success, profile: profile));
     } on AuthException catch (error) {
       emit(
         state.copyWith(

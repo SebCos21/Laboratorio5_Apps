@@ -59,32 +59,35 @@ void main() {
     expect(saved.email, 'ana@icesi.edu.co');
   });
 
-  test('emite loading y failure cuando Auth falla, sin tocar profiles', () async {
-    auth = FakeAuthRepository(error: Exception('correo ya registrado'));
-    profile = FakeProfileRepository();
-    final bloc = buildBloc();
+  test(
+    'emite loading y failure cuando Auth falla, sin tocar profiles',
+    () async {
+      auth = FakeAuthRepository(error: Exception('correo ya registrado'));
+      profile = FakeProfileRepository();
+      final bloc = buildBloc();
 
-    final expectation = expectLater(
-      bloc.stream,
-      emitsInOrder(<Matcher>[
-        isA<RegisterState>().having(
-          (state) => state.status,
-          'status',
-          RegisterStatus.loading,
-        ),
-        isA<RegisterState>()
-            .having((state) => state.status, 'status', RegisterStatus.failure)
-            .having(
-              (state) => state.errorMessage,
-              'errorMessage',
-              isNotEmpty,
-            ),
-      ]),
-    );
+      final expectation = expectLater(
+        bloc.stream,
+        emitsInOrder(<Matcher>[
+          isA<RegisterState>().having(
+            (state) => state.status,
+            'status',
+            RegisterStatus.loading,
+          ),
+          isA<RegisterState>()
+              .having((state) => state.status, 'status', RegisterStatus.failure)
+              .having(
+                (state) => state.errorMessage,
+                'errorMessage',
+                isNotEmpty,
+              ),
+        ]),
+      );
 
-    bloc.add(event);
-    await expectation;
+      bloc.add(event);
+      await expectation;
 
-    expect(profile.calls, 0);
-  });
+      expect(profile.calls, 0);
+    },
+  );
 }
