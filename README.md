@@ -72,6 +72,11 @@ crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvi�
 - ✅ Paso 2: `_submit()` lanza `RegisterSubmitted` (ya no navega), el formulario
   lee `isLoading` y el `ErrorMessage` del estado, y el `BlocListener` navega a
   `/home` pasando `arguments: state.profile`.
+- ✅ Paso 3: `AuthUser` (`id`, `email`) y `Profile` (`id`, `username`,
+  `fullName`) con el `email` extra que la tabla `profiles` exige `not null`.
+  La contraseña no está en ninguna entidad: solo viaja hasta Auth.
+- ✅ Paso 5: `SignUpUseCase` llama una vez a Auth y luego guarda el perfil con
+  el `id` devuelto.
 - ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
 - ⏳ **Paso 9**: `HomeScreen` debe leer el `Profile` que llega en
   `ModalRoute.of(context)!.settings.arguments` en lugar de usar los datos de
