@@ -91,7 +91,7 @@ class _LoginViewState extends State<_LoginView> {
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => context.go(AppRoutes.signUp),
+              onPressed: () => context.go(AppRoutes.register),
               child: const Text('¿No tienes cuenta? Regístrate'),
             ),
           ],

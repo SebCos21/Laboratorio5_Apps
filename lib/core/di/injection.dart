@@ -2,7 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../router/app_router.dart';
-import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/datasources/auth_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -11,8 +11,8 @@ import '../../features/auth/domain/usecases/sign_out_usecase.dart';
 import '../../features/auth/domain/usecases/sign_up_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/login/login_bloc.dart';
-import '../../features/auth/presentation/bloc/sign_up/sign_up_bloc.dart';
-import '../../features/profile/data/datasources/profile_remote_data_source.dart';
+import '../../features/auth/presentation/bloc/register/register_bloc.dart';
+import '../../features/profile/data/datasources/profile_data_source.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/domain/usecases/create_profile_usecase.dart';
@@ -28,29 +28,22 @@ void configureDependencies() {
   if (getIt.isRegistered<GoRouter>()) return;
 
   getIt
-    // Data sources
-    ..registerLazySingleton<AuthRemoteDataSource>(
-      SupabaseAuthRemoteDataSource.new,
-    )
-    ..registerLazySingleton<ProfileRemoteDataSource>(
-      SupabaseProfileRemoteDataSource.new,
-    )
-    // Repositorios
+    // Data sources (los pasos 6 y 7 del mapa)
+    ..registerLazySingleton<AuthDataSource>(SupabaseAuthDataSource.new)
+    ..registerLazySingleton<ProfileDataSource>(SupabaseProfileDataSource.new)
+    // Repositorios (paso 4 del mapa)
     ..registerLazySingleton<AuthRepository>(
-      () => AuthRepositoryImpl(getIt<AuthRemoteDataSource>()),
+      () => AuthRepositoryImpl(getIt<AuthDataSource>()),
     )
     ..registerLazySingleton<ProfileRepository>(
-      () => ProfileRepositoryImpl(getIt<ProfileRemoteDataSource>()),
+      () => ProfileRepositoryImpl(getIt<ProfileDataSource>()),
     )
     // Casos de uso de auth
     ..registerLazySingleton<SignInUseCase>(
       () => SignInUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<SignUpUseCase>(
-      () => SignUpUseCase(
-        getIt<AuthRepository>(),
-        getIt<ProfileRepository>(),
-      ),
+      () => SignUpUseCase(getIt<AuthRepository>(), getIt<ProfileRepository>()),
     )
     ..registerLazySingleton<SignOutUseCase>(
       () => SignOutUseCase(getIt<AuthRepository>()),
@@ -68,7 +61,7 @@ void configureDependencies() {
     // Blocs
     ..registerLazySingleton<AuthBloc>(AuthBloc.new)
     ..registerFactory<LoginBloc>(LoginBloc.new)
-    ..registerFactory<SignUpBloc>(SignUpBloc.new)
+    ..registerFactory<RegisterBloc>(() => RegisterBloc(getIt<SignUpUseCase>()))
     // Router
     ..registerLazySingleton<GoRouter>(() => createRouter(getIt<AuthBloc>()));
 }

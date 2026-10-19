@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 /// Pantalla temporal después de iniciar sesión.
 ///
 /// Aquí se mostrará el perfil cuando se complete el flujo de la guía.
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

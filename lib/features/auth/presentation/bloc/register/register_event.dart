@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-sealed class SignUpEvent extends Equatable {
-  const SignUpEvent();
+sealed class RegisterEvent extends Equatable {
+  const RegisterEvent();
 
   @override
   List<Object?> get props => [];
@@ -10,8 +10,8 @@ sealed class SignUpEvent extends Equatable {
 /// El formulario de registro pasó la validación local.
 ///
 /// La confirmación de contraseña no se envía: solo se compara en pantalla.
-final class SignUpSubmitted extends SignUpEvent {
-  const SignUpSubmitted({
+final class RegisterSubmitted extends RegisterEvent {
+  const RegisterSubmitted({
     required this.username,
     required this.fullName,
     required this.email,

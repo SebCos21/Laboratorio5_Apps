@@ -1,7 +1,7 @@
 import '../models/profile_model.dart';
 
 /// Acceso remoto a la tabla `profiles`.
-abstract interface class ProfileRemoteDataSource {
+abstract interface class ProfileDataSource {
   Future<ProfileModel> createProfile({
     required String id,
     required String username,
@@ -16,8 +16,8 @@ abstract interface class ProfileRemoteDataSource {
 /// Llamadas que irán aquí:
 /// - `Supabase.instance.client.from('profiles').insert({...}).select().single()`
 /// - `Supabase.instance.client.from('profiles').select().eq('id', id).maybeSingle()`
-class SupabaseProfileRemoteDataSource implements ProfileRemoteDataSource {
-  const SupabaseProfileRemoteDataSource();
+class SupabaseProfileDataSource implements ProfileDataSource {
+  const SupabaseProfileDataSource();
 
   @override
   Future<ProfileModel> createProfile({
@@ -26,14 +26,14 @@ class SupabaseProfileRemoteDataSource implements ProfileRemoteDataSource {
     required String fullName,
   }) {
     throw UnimplementedError(
-      'ProfileRemoteDataSource.createProfile pendiente de la guía.',
+      'SupabaseProfileDataSource.createProfile pendiente (guía).',
     );
   }
 
   @override
   Future<ProfileModel?> getProfile(String id) {
     throw UnimplementedError(
-      'ProfileRemoteDataSource.getProfile pendiente de la guía.',
+      'SupabaseProfileDataSource.getProfile pendiente (guía).',
     );
   }
 }

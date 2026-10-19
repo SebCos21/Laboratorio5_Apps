@@ -1,13 +1,13 @@
 import '../../../../core/errors/error_mapper.dart';
 import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
-import '../datasources/profile_remote_data_source.dart';
+import '../datasources/profile_data_source.dart';
 
 /// Implementación del repositorio de perfiles.
 class ProfileRepositoryImpl implements ProfileRepository {
-  const ProfileRepositoryImpl(this._remoteDataSource);
+  const ProfileRepositoryImpl(this._dataSource);
 
-  final ProfileRemoteDataSource _remoteDataSource;
+  final ProfileDataSource _dataSource;
 
   @override
   Future<Profile> createProfile({
@@ -16,7 +16,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String fullName,
   }) async {
     try {
-      final model = await _remoteDataSource.createProfile(
+      final model = await _dataSource.createProfile(
         id: id,
         username: username,
         fullName: fullName,
@@ -30,7 +30,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Profile?> getProfile(String id) async {
     try {
-      final model = await _remoteDataSource.getProfile(id);
+      final model = await _dataSource.getProfile(id);
       return model?.toEntity();
     } catch (error) {
       throw mapErrorToFailure(error);

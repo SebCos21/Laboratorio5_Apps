@@ -47,11 +47,11 @@ lib/
     ├── auth/
     │   ├── domain/           # AuthUser, AuthRepository, casos de uso
     │   ├── data/             # data source (stub) + repositorio
-    │   └── presentation/     # AuthBloc, LoginBloc, SignUpBloc y pantallas
+    │   └── presentation/     # AuthBloc, LoginBloc, RegisterBloc y pantallas
     └── profile/
         ├── domain/           # Profile, ProfileRepository, casos de uso
         ├── data/             # data source (stub), ProfileModel, repositorio
-        └── presentation/     # HomePage temporal
+        └── presentation/     # HomeScreen temporal
 ```
 
 `SignUpUseCase` es el único punto que conoce los dos destinos: primero crea la
@@ -60,10 +60,12 @@ cuenta en Auth y después guarda el perfil con el `id` devuelto.
 ## Estado actual
 
 - ✅ Estructura de carpetas, entidades, contratos y DI.
-- ✅ Rutas `/login`, `/signup` y `/home` con redirect por sesión.
+- ✅ Rutas `/login`, `/register` y `/home` con redirect por sesión.
 - ✅ Formularios con validación local y eventos de Bloc.
+- ✅ `RegisterBloc` con loading/success/failure y `RegisterScreen` escuchando
+  el resultado (pasos 1, 2 y 9 del mapa).
 - ⏳ Llamadas reales a Supabase (`UnimplementedError` marcados con TODO).
-- ⏳ Handlers de los blocs.
+- ⏳ Handlers de `LoginBloc` y `AuthBloc`.
 - ⏳ Diseño final según las imágenes de la guía.
 
 ## Comandos

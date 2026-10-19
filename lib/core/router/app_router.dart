@@ -6,12 +6,12 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/sign_up_page.dart';
-import '../../features/profile/presentation/pages/home_page.dart';
+import '../../features/auth/presentation/pages/register_screen.dart';
+import '../../features/profile/presentation/pages/home_screen.dart';
 
 abstract final class AppRoutes {
   static const String login = '/login';
-  static const String signUp = '/signup';
+  static const String register = '/register';
   static const String home = '/home';
 }
 
@@ -44,7 +44,7 @@ GoRouter createRouter(AuthBloc authBloc) {
       final status = authBloc.state.status;
       final location = state.matchedLocation;
       final isPublicRoute =
-          location == AppRoutes.login || location == AppRoutes.signUp;
+          location == AppRoutes.login || location == AppRoutes.register;
 
       if (status == AuthStatus.authenticated && isPublicRoute) {
         return AppRoutes.home;
@@ -60,12 +60,12 @@ GoRouter createRouter(AuthBloc authBloc) {
         builder: (context, state) => const LoginPage(),
       ),
       GoRoute(
-        path: AppRoutes.signUp,
-        builder: (context, state) => const SignUpPage(),
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => const HomeScreen(),
       ),
     ],
   );
