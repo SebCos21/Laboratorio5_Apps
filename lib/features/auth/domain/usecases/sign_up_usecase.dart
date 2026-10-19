@@ -5,34 +5,27 @@ import '../repository/profile_repository.dart';
 
 /// Registro de usuario: un formulario, dos destinos.
 ///
-/// Es la única pieza que conoce las dos columnas del mapa:
-///
-/// 1. **Auth**: crea la cuenta con correo y contraseña y devuelve el `id`.
-/// 2. **profiles**: arma el `Profile` con ese `id` y el contrato lo guarda.
-///
-/// Devuelve el `Profile` porque es lo que la app necesita mostrar después.
+/// Es la única pieza que conoce los dos contratos y la que decide el orden:
+/// primero la cuenta y después el perfil, con el `id` que devolvió Auth.
 class SignUpUseCase {
-  final AuthRepository authRepository;
-  final ProfileRepository profileRepository;
+  final AuthRepository _auth;
+  final ProfileRepository _profiles;
 
-  const SignUpUseCase({
-    required this.authRepository,
-    required this.profileRepository,
-  });
+  const SignUpUseCase(this._auth, this._profiles);
 
   Future<Profile> call({
-    required String email,
-    required String password,
     required String username,
     required String fullName,
+    required String email,
+    required String password,
   }) async {
-    // 1º Auth.
-    final AuthUser user = await authRepository.signUp(
+    // 1º Auth: crea la cuenta y devuelve el id.
+    final AuthUser user = await _auth.signUp(
       email: email,
       password: password,
     );
 
-    // 2º profiles, con el id que devolvió Auth.
+    // 2º profiles: arma la entidad con ese id.
     final profile = Profile(
       id: user.id,
       username: username,
@@ -40,7 +33,7 @@ class SignUpUseCase {
       email: email,
     );
 
-    await profileRepository.createProfile(profile);
+    await _profiles.createProfile(profile);
 
     return profile;
   }

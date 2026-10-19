@@ -45,8 +45,8 @@ void main() {
   testWidgets('al registrarse navega a /home con el Profile', (tester) async {
     final bloc = RegisterBloc(
       SignUpUseCase(
-        authRepository: FakeAuthRepository(),
-        profileRepository: FakeProfileRepository(),
+        FakeAuthRepository(),
+        FakeProfileRepository(),
       ),
     );
 
@@ -63,10 +63,10 @@ void main() {
   ) async {
     final bloc = RegisterBloc(
       SignUpUseCase(
-        authRepository: FakeAuthRepository(
+        FakeAuthRepository(
           error: Exception('correo ya registrado'),
         ),
-        profileRepository: FakeProfileRepository(),
+        FakeProfileRepository(),
       ),
     );
 

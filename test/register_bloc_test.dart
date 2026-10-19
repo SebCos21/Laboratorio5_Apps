@@ -18,9 +18,7 @@ void main() {
   late FakeProfileRepository profile;
 
   RegisterBloc buildBloc() {
-    return RegisterBloc(
-      SignUpUseCase(authRepository: auth, profileRepository: profile),
-    );
+    return RegisterBloc(SignUpUseCase(auth, profile));
   }
 
   test('emite loading y success con el Profile guardado', () async {
