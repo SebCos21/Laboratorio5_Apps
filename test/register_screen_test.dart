@@ -79,4 +79,20 @@ void main() {
     expect(find.byType(RegisterScreen), findsOneWidget);
     expect(find.textContaining('No se pudo crear la cuenta'), findsOneWidget);
   });
+
+  testWidgets('rechaza contraseñas que no coinciden sin llamar al Bloc', (
+    tester,
+  ) async {
+    final bloc = RegisterBloc(
+      SignUpUseCase(FakeAuthRepository(), FakeProfileRepository()),
+    );
+
+    await tester.pumpWidget(buildApp(bloc));
+    await fillForm(tester);
+    await tester.enterText(find.byType(TextField).at(4), '654321');
+    await tapRegister(tester);
+    await tester.pump();
+
+    expect(find.text('Las contraseñas no coinciden'), findsOneWidget);
+  });
 }

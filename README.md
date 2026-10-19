@@ -79,6 +79,9 @@ crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvi�
   `ProfileRepository.createProfile(Profile)`; cada uno habla con su entidad.
 - ✅ Paso 5: `SignUpUseCase` llama una vez a Auth y luego guarda el perfil con
   el `id` devuelto.
+- ✅ Paso 6: `SupabaseAuthDataSource` recibe el `SupabaseClient` por
+  constructor, valida `response.user` y lo convierte en `AuthUser`;
+  `AuthRepositoryImpl` delega en él.
 - ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
 - ⏳ **Paso 9**: `HomeScreen` debe leer el `Profile` que llega en
   `ModalRoute.of(context)!.settings.arguments` en lugar de usar los datos de
