@@ -69,9 +69,13 @@ crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvi�
   el `Profile`; `SignUpUseCase` es quien reparte los datos entre Auth y
   `profiles`.
 - ✅ Pantallas del proyecto base con el `Bloc` conectado.
+- ✅ Paso 2: `_submit()` lanza `RegisterSubmitted` (ya no navega), el formulario
+  lee `isLoading` y el `ErrorMessage` del estado, y el `BlocListener` navega a
+  `/home` pasando `arguments: state.profile`.
 - ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
-- ⏳ `HomeScreen`: pasarle los datos reales del usuario y que `Cerrar sesión`
-  llame a `signOut` antes de navegar.
+- ⏳ **Paso 9**: `HomeScreen` debe leer el `Profile` que llega en
+  `ModalRoute.of(context)!.settings.arguments` en lugar de usar los datos de
+  ejemplo, y que `Cerrar sesión` llame a `signOut` antes de navegar.
 - ⏳ Confirmar las credenciales del proyecto si el profesor entrega unas nuevas.
 
 ## Tests

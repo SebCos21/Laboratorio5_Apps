@@ -75,16 +75,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: BlocListener<RegisterBloc, RegisterState>(
-            listenWhen: (previous, current) =>
-                previous.status != RegisterStatus.success &&
-                current.status == RegisterStatus.success,
             listener: (context, state) {
-              Navigator.pushReplacementNamed(context, '/home');
+              if (state.status == RegisterStatus.success) {
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/home',
+                  arguments: state.profile,
+                );
+              }
             },
             child: BlocBuilder<RegisterBloc, RegisterState>(
               builder: (context, state) {
-                final errorMessage =
-                    state.status == RegisterStatus.failure
+                // El formulario toma del estado el isLoading y el mensaje.
+                final errorMessage = state.status == RegisterStatus.failure
                     ? state.errorMessage
                     : _validationError;
 
