@@ -79,8 +79,7 @@ En **SQL Editor → New query**, ejecuta:
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   username text not null,
-  full_name text not null,
-  email text not null
+  full_name text not null
 );
 
 -- Permisos para usuarios autenticados (sin esto: "permission denied").
@@ -89,13 +88,6 @@ grant select, insert, update on public.profiles to authenticated;
 
 > El `on delete cascade` hace que, si borras la cuenta en **Authentication →
 > Users**, su fila de `profiles` se borre también.
-
-> **Sobre `email`**: la guía del laboratorio describe la tabla con tres
-> columnas (`id`, `username`, `full_name`). Las migraciones de este repo
-> incluyen además `email not null`, y por eso la entidad `Profile` y el `insert`
-> también llevan el correo. Si prefieres la tabla de tres columnas, elimina la
-> línea `'email': profile.email` de
-> `lib/features/auth/data/source/supabase_profile_data_source.dart`.
 
 ### 2.4. Activar RLS y crear las policies (recomendado)
 
@@ -144,8 +136,8 @@ con el SQL del punto 2.3 y no volver a crearla.
 
 Antes de abrir la app, confirma en el dashboard:
 
-1. **Table Editor → profiles**: deben existir las columnas `id`, `username`,
-   `full_name` y (si aplica) `email`.
+1. **Table Editor → profiles**: deben existir las columnas `id`, `username` y
+   `full_name`.
 2. **Authentication → Users**: debe estar vacío o con los usuarios de prueba.
 3. En **Authentication → Policies** (o en el SQL Editor con
    `select * from pg_policies where tablename = 'profiles';`) deben aparecer
@@ -208,8 +200,7 @@ SUPABASE            Supabase Auth            tabla profiles
 Reglas que sigue el código:
 
 - La contraseña solo viaja hasta Auth; no está en `AuthUser` ni en `Profile`.
-- `Profile` es lo que guardas tú: `id`, `username`, `fullName` (y `email` en
-  este repo por la columna `not null`).
+- `Profile` es lo que guardas tú: `id`, `username` y `fullName`.
 - Cada repositorio habla con **su** entidad: Auth devuelve `AuthUser` y
   `profiles` devuelve `Profile`.
 - Los data sources traducen `AuthException` y `PostgrestException` a
@@ -232,7 +223,7 @@ lib/
     ├── auth/
     │   ├── domain/
     │   │   ├── entities/auth_user.dart            # id + email (lo de Auth)
-    │   │   ├── entities/profile.dart              # id + username + fullName (+ email)
+    │   │   ├── entities/profile.dart              # id + username + fullName
     │   │   ├── errors/app_exception.dart          # error de dominio (sin SDK)
     │   │   ├── repository/auth_repository.dart    # signUp, signIn, signOut
     │   │   ├── repository/profile_repository.dart # createProfile, getProfile
@@ -310,11 +301,10 @@ class Profile {
   final String id;
   final String username;
   final String fullName;
-  final String email; // extra de este repo (columna not null)
 }
 ```
 
-La contraseña no está en ninguna de las dos.
+La contraseña no está en ninguna de las dos. El correo vive solo en `AuthUser`.
 
 ### Paso 4 · Los contratos
 
@@ -340,7 +330,7 @@ abstract class ProfileRepository {
 Archivo: `sign_up_usecase.dart`.
 
 1. Llama a `_auth.signUp(email, password)` y recibe el `AuthUser`.
-2. Arma el `Profile` con `user.id`, `username`, `fullName` y `email`.
+2. Arma el `Profile` con `user.id`, `username` y `fullName`.
 3. Llama a `_profiles.createProfile(profile)`.
 4. Devuelve el `Profile` (es lo que necesita el estado `success`).
 
@@ -384,7 +374,8 @@ Archivos: `supabase_profile_data_source.dart` y
 
 - La ruta `/home` lee el `Profile` de
   `ModalRoute.of(context)!.settings.arguments` y se lo pasa a `HomeScreen`
-  (`username`, `fullName`, `email`).
+  (`username`, `fullName`); el correo lo toma de la sesión de Auth
+  (`currentUser?.email`).
 - El botón **Cerrar sesión** llama a `SignOutUseCase` antes de volver a
   `/login`, para que la sesión no quede abierta en Supabase.
 
@@ -397,7 +388,7 @@ Archivos: `supabase_profile_data_source.dart` y
 3. **`SignInUseCase`**:
    - `signIn` devuelve el `AuthUser`;
    - con su `id`, `getProfile` trae el perfil;
-   - el correo que se muestra es el de Auth (`user.email`).
+   - el correo lo lee `/home` de la sesión de Auth.
 4. **`SignOutUseCase`**: llama a `AuthRepository.signOut`.
 5. **`LoginBloc`**: `LoginStatus { initial, loading, success, failure }`,
    `LoginState` con `copyWith`; `success` lleva el `Profile`.
@@ -429,7 +420,7 @@ RegisterScreen
             └─ SignUpUseCase
                  ├─ AuthRepository.signUp ──► auth.users (correo + contraseña)
                  └─ ProfileRepository.createProfile(id de Auth)
-                        └─ insert en profiles (id, username, full_name, email)
+                        └─ insert en profiles (id, username, full_name)
        └─ RegisterBloc (success con Profile)
             └─ Navigator → /home (arguments: Profile)
 ```
@@ -501,12 +492,13 @@ Los tests usan `test/fakes.dart`, no Supabase, así que corren sin internet.
 
 | Síntoma | Causa y solución |
 | --- | --- |
-| `permission denied for table profiles` | Falta el `grant` a `authenticated` o una policy de `insert`/`select`. Ejecuta el SQL del punto 2.3 y 2.4. |
-| `null value in column "email" ... violates not-null constraint` | Tu tabla tiene `email not null`, pero el insert no lo envía. Este repo sí lo envía; si quitaste la línea, vuelve a agregarla. |
-| `Could not find the 'email' column` | Tu tabla tiene solo tres columnas. Quita `'email': profile.email` del data source. |
-| `Invalid login credentials` | Correo o contraseña incorrectos, o el usuario no existe. |
-| `Email not confirmed` | El proyecto exige confirmar el correo. Desactiva **Confirm email** o confirma el usuario en el dashboard. |
-| El registro falla con `null check operator used on a null value` | No se validó `response.user`. Este código lo valida y lanza un `AuthException`. |
+| `permission denied for table profiles` | La app muestra "Sin permiso para usar la tabla profiles". Falta el `grant` a `authenticated` o una policy de `insert`/`select`. Ejecuta el SQL del punto 2.3 y 2.4. |
+| `relation "public.profiles" does not exist` | La app muestra "No existe la tabla profiles en Supabase". Créala con el SQL del punto 2.3. |
+| `null value in column ... violates not-null constraint` | La tabla tiene una columna obligatoria que el insert no envía. Usa las tres columnas de la guía: `id`, `username` y `full_name`. |
+| `Invalid login credentials` | La app muestra "Correo o contraseña incorrectos." El correo no existe o la contraseña está mal. |
+| `Email not confirmed` | La app muestra "Debes confirmar tu correo antes de iniciar sesión." Desactiva **Confirm email** o confirma el usuario en el dashboard. |
+| `No se encontró el perfil de esta cuenta` | La cuenta existe en Auth pero no tiene fila en `profiles`. Revisa que el insert se ejecute y que la policy de `select` permita leerla. |
+| El registro falla con `null check operator used on a null value` | No se validó `response.user`. Este código lo valida y lanza una `AppException`. |
 | El login entra pero `/home` muestra datos de ejemplo | La ruta no está pasando el `Profile`. Revisa `arguments: state.profile` y el `ModalRoute.of(context)!...arguments`. |
 | Al cerrar sesión se puede volver atrás y sigue "logueado" | El botón debe llamar a `SignOutUseCase` **antes** de navegar (así está en `HomeScreen`). |
 | La app pide confirmar correo y no llega el enlace | Usa un correo real o desactiva la confirmación para el laboratorio. |
@@ -517,10 +509,11 @@ Los tests usan `test/fakes.dart`, no Supabase, así que corren sin internet.
 
 - El código sigue el orden del mapa del laboratorio: entidades → contratos →
   caso de uso → datos → `main.dart` → `HomeScreen` → Parte 2.
-- `Profile` incluye `email` porque la tabla de las migraciones del proyecto base
-  lo declara `not null`. La guía lo omite; si usas su tabla de tres columnas,
-  revisa el aviso del punto 2.3.
+- `Profile` coincide con la guía: `id`, `username` y `fullName`. El correo vive
+  solo en Auth, y `/home` lo lee de `currentUser?.email`.
 - Los data sources reciben el `SupabaseClient` por constructor, y `main.dart`
   arma la cadena completa dentro del `create` de cada `BlocProvider`.
+- Los data sources traducen los errores frecuentes de Supabase a mensajes en
+  español (`AppException`), así el usuario no ve códigos técnicos.
 - La sesión de Supabase se mantiene entre reinicios de la app; después de
   **Cerrar sesión** se limpia y la app vuelve al login.

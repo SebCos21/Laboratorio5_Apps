@@ -19,10 +19,9 @@ class SupabaseProfileDataSource {
         'id': profile.id,
         'username': profile.username,
         'full_name': profile.fullName,
-        'email': profile.email,
       });
     } on PostgrestException catch (error) {
-      throw AppException(error.message);
+      throw AppException(_friendlyMessage(error));
     }
   }
 
@@ -34,10 +33,29 @@ class SupabaseProfileDataSource {
         id: row['id'] as String,
         username: row['username'] as String,
         fullName: row['full_name'] as String,
-        email: row['email'] as String? ?? '',
       );
     } on PostgrestException catch (error) {
-      throw AppException(error.message);
+      throw AppException(_friendlyMessage(error));
+    }
+  }
+
+  /// Traduce los errores más frecuentes de PostgREST a algo mostrable.
+  String _friendlyMessage(PostgrestException error) {
+    switch (error.code) {
+      case '42501':
+        return 'Sin permiso para usar la tabla profiles. Revisa el grant y '
+            'las policies en Supabase.';
+      case '42P01':
+        return 'No existe la tabla profiles en Supabase.';
+      case '23502':
+        return 'Falta un campo obligatorio en profiles. Revisa las columnas '
+            'de la tabla.';
+      case '23503':
+        return 'No se encontró la cuenta de Auth asociada a este perfil.';
+      case 'PGRST116':
+        return 'No se encontró el perfil de esta cuenta.';
+      default:
+        return error.message;
     }
   }
 }

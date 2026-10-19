@@ -68,12 +68,6 @@ class FakeProfileRepository implements ProfileRepository {
     getProfileCalls++;
     if (getProfileError != null) throw getProfileError!;
 
-    return profile ??
-        Profile(
-          id: id,
-          username: 'ana',
-          fullName: 'Ana Gómez',
-          email: 'ana@icesi.edu.co',
-        );
+    return profile ?? Profile(id: id, username: 'ana', fullName: 'Ana Gómez');
   }
 }

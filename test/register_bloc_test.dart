@@ -38,11 +38,10 @@ void main() {
         isA<RegisterState>()
             .having((state) => state.status, 'status', RegisterStatus.success)
             .having((state) => state.profile?.username, 'username', 'ana')
-            .having((state) => state.profile?.fullName, 'fullName', 'Ana Gómez')
             .having(
-              (state) => state.profile?.email,
-              'email',
-              'ana@icesi.edu.co',
+              (state) => state.profile?.fullName,
+              'fullName',
+              'Ana Gómez',
             ),
       ]),
     );
@@ -57,7 +56,6 @@ void main() {
     expect(saved.id, 'user-1');
     expect(saved.username, 'ana');
     expect(saved.fullName, 'Ana Gómez');
-    expect(saved.email, 'ana@icesi.edu.co');
   });
 
   test(

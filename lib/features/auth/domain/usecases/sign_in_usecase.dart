@@ -19,14 +19,6 @@ class SignInUseCase {
   }) async {
     final AuthUser user = await _auth.signIn(email: email, password: password);
 
-    final profile = await _profiles.getProfile(user.id);
-
-    // El correo que muestra la app es el de Auth.
-    return Profile(
-      id: profile.id,
-      username: profile.username,
-      fullName: profile.fullName,
-      email: user.email,
-    );
+    return _profiles.getProfile(user.id);
   }
 }

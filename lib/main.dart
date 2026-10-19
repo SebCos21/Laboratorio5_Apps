@@ -76,7 +76,8 @@ class App extends StatelessWidget {
           return HomeScreen(
             username: profile.username,
             fullName: profile.fullName,
-            email: profile.email,
+            // El correo no vive en `profiles`: se lee de la sesión de Auth.
+            email: Supabase.instance.client.auth.currentUser?.email ?? '',
             signOut: SignOutUseCase(
               AuthRepositoryImpl(
                 SupabaseAuthDataSource(Supabase.instance.client),

@@ -23,9 +23,7 @@ void main() {
           final profile =
               ModalRoute.of(context)?.settings.arguments as Profile?;
           return Scaffold(
-            body: Center(
-              child: Text('Perfil de ${profile?.username} <${profile?.email}>'),
-            ),
+            body: Center(child: Text('Perfil de ${profile?.username}')),
           );
         },
       },
@@ -56,7 +54,7 @@ void main() {
     await tapLogin(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('Perfil de ana <ana@icesi.edu.co>'), findsOneWidget);
+    expect(find.text('Perfil de ana'), findsOneWidget);
   });
 
   testWidgets('cuando el login falla muestra el mensaje y no navega', (

@@ -30,7 +30,7 @@ class SupabaseAuthDataSource {
 
       return AuthUser(id: user.id, email: user.email ?? email);
     } on AuthException catch (error) {
-      throw AppException(error.message);
+      throw AppException(_friendlyMessage(error));
     }
   }
 
@@ -51,7 +51,7 @@ class SupabaseAuthDataSource {
 
       return AuthUser(id: user.id, email: user.email ?? email);
     } on AuthException catch (error) {
-      throw AppException(error.message);
+      throw AppException(_friendlyMessage(error));
     }
   }
 
@@ -59,7 +59,25 @@ class SupabaseAuthDataSource {
     try {
       await _client.auth.signOut();
     } on AuthException catch (error) {
-      throw AppException(error.message);
+      throw AppException(_friendlyMessage(error));
     }
+  }
+
+  /// Traduce los errores más frecuentes de Auth a algo que se pueda mostrar.
+  String _friendlyMessage(AuthException error) {
+    final message = error.message.toLowerCase();
+
+    if (message.contains('invalid login credentials')) {
+      return 'Correo o contraseña incorrectos.';
+    }
+    if (message.contains('email not confirmed')) {
+      return 'Debes confirmar tu correo antes de iniciar sesión.';
+    }
+    if (message.contains('already registered') ||
+        message.contains('already been registered')) {
+      return 'Ese correo ya está registrado. Inicia sesión.';
+    }
+
+    return error.message;
   }
 }

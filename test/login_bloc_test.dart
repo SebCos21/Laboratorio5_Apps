@@ -26,11 +26,10 @@ void main() {
         isA<LoginState>()
             .having((state) => state.status, 'status', LoginStatus.success)
             .having((state) => state.profile?.username, 'username', 'ana')
-            .having((state) => state.profile?.fullName, 'fullName', 'Ana Gómez')
             .having(
-              (state) => state.profile?.email,
-              'email',
-              'ana@icesi.edu.co',
+              (state) => state.profile?.fullName,
+              'fullName',
+              'Ana Gómez',
             ),
       ]),
     );
