@@ -1,76 +1,81 @@
 # Laboratorio 5 · Registro de usuarios con Supabase
 
-Estructura inicial de la app Flutter organizada con Clean Architecture y Bloc.
-Incluye los contratos, los stubs de la capa de datos y las pantallas mínimas de
-login y registro. La lógica y el diseño se completan en la fase de la guía.
+App Flutter construida sobre el proyecto base del laboratorio
+([Domiciano/262App3](https://github.com/Domiciano/262App3)): mismas carpetas,
+mismo tema y las tres pantallas ya dibujadas. Aquí se conectaron las capas de
+adentro (dominio y datos) y el `RegisterBloc` siguiendo el mapa del laboratorio.
 
-## Requisitos
-
-- Flutter 3.44 o superior (Dart 3.12+).
-- Un proyecto de Supabase con la tabla `profiles` creada
-  (`supabase/schema.sql`).
-
-## Configuración de Supabase
-
-1. Crea el proyecto en [supabase.com](https://supabase.com).
-2. Ejecuta `supabase/schema.sql` en el SQL Editor.
-3. Copia la URL y la key pública del proyecto (Settings > API). Puede ser la
-   `anon key` clásica o la `publishable key` nueva.
-4. Ejecuta la app pasando las credenciales en tiempo de compilación:
+## Cómo correrlo
 
 ```sh
-flutter run ^
-  --dart-define=SUPABASE_URL=https://tu-proyecto.supabase.co ^
-  --dart-define=SUPABASE_ANON_KEY=tu-anon-key
+flutter pub get
+flutter run
 ```
 
-No hay credenciales escritas en el repositorio. Si faltan, la app arranca en el
-login con un aviso visible.
-
-> Para el registro, desactiva la confirmación por correo en
-> Authentication > Providers > Email mientras trabajas el flujo de la guía.
+`main.dart` ya inicializa Supabase con el proyecto del laboratorio, así que no
+hay que configurar credenciales.
 
 ## Estructura
 
 ```
 lib/
-├── main.dart                 # Supabase.initialize + DI + runApp
-├── app.dart                  # MaterialApp.router + tema
-├── core/
-│   ├── config/               # credenciales por --dart-define
-│   ├── di/                   # registro en get_it
-│   ├── errors/               # Failure y mapeo de excepciones
-│   ├── router/               # rutas y redirect por sesión
-│   ├── theme/                # tema base
-│   └── utils/                # validadores de formularios
+├── main.dart                       # Supabase.initialize + tema + rutas      (paso 8)
+├── theme/app_theme.dart            # AppColors y buildTheme()
+├── components/
+│   ├── primary_button.dart         # botón con estado de carga
+│   ├── error_message.dart          # mensaje de error bajo el formulario
+│   └── profile_field.dart          # fila de dato del perfil
 └── features/
     ├── auth/
-    │   ├── domain/           # AuthUser, AuthRepository, casos de uso
-    │   ├── data/             # data source (stub) + repositorio
-    │   └── presentation/     # AuthBloc, LoginBloc, RegisterBloc y pantallas
-    └── profile/
-        ├── domain/           # Profile, ProfileRepository, casos de uso
-        ├── data/             # data source (stub), ProfileModel, repositorio
-        └── presentation/     # HomeScreen temporal
+    │   ├── domain/
+    │   │   ├── entities/auth_user.dart            # lo que devuelve Auth   (paso 3)
+    │   │   ├── entities/profile.dart              # lo que guardas en la tabla (paso 3)
+    │   │   ├── repository/auth_repository.dart    # contrato de Auth       (paso 4)
+    │   │   ├── repository/profile_repository.dart # contrato del perfil    (paso 4)
+    │   │   └── usecases/sign_up_usecase.dart      # los dos pasos, en orden (paso 5)
+    │   └── data/
+    │       ├── source/supabase_auth_data_source.dart     # llamadas a Auth (paso 6)
+    │       ├── source/supabase_profile_data_source.dart  # insert en profiles (paso 7)
+    │       ├── repository/auth_repository_impl.dart      # cumple el contrato (paso 6)
+    │       └── repository/profile_repository_impl.dart   # cumple el contrato (paso 7)
+    ├── register/ui/
+    │   ├── bloc/register_bloc.dart                 # eventos y estados     (paso 1)
+    │   ├── bloc/register_event.dart
+    │   ├── bloc/register_state.dart
+    │   └── screens/register_screen.dart            # pantalla ya dibujada  (paso 2)
+    ├── login/ui/screens/login_screen.dart          # Parte 2, con la misma forma
+    └── home/ui/screens/home_screen.dart            # a dónde llega el registro (paso 9)
 ```
 
-`SignUpUseCase` es el único punto que conoce los dos destinos: primero crea la
-cuenta en Auth y después guarda el perfil con el `id` devuelto.
+`SignUpUseCase` es la única pieza que conoce las dos columnas del mapa: primero
+crea la cuenta en Auth y después guarda el perfil con el `id` que Auth devolvió.
 
-## Estado actual
+## Rutas
 
-- ✅ Estructura de carpetas, entidades, contratos y DI.
-- ✅ Rutas `/login`, `/register` y `/home` con redirect por sesión.
-- ✅ Formularios con validación local y eventos de Bloc.
-- ✅ `RegisterBloc` con loading/success/failure y `RegisterScreen` escuchando
-  el resultado (pasos 1, 2 y 9 del mapa).
-- ⏳ Llamadas reales a Supabase (`UnimplementedError` marcados con TODO).
-- ⏳ Handlers de `LoginBloc` y `AuthBloc`.
-- ⏳ Diseño final según las imágenes de la guía.
+| Ruta | Pantalla | Qué hace hoy |
+| --- | --- | --- |
+| `/login` | `LoginScreen` | Valida que los campos no estén vacíos y navega a `/home` |
+| `/register` | `RegisterScreen` | Valida, lanza `OnRegisterSubmittedEvent` y navega a `/home` con `RegisterSuccessState` |
+| `/home` | `HomeScreen` | Muestra el perfil con datos de ejemplo y vuelve a `/login` |
 
-## Comandos
+## Estado del laboratorio
+
+- ✅ Pasos 1 a 9 del mapa: registro completo por las capas
+  (`RegisterBloc` → `SignUpUseCase` → repositorios → data sources → Supabase).
+- ✅ `RegisterBloc` sin Supabase: solo loading, success y el mensaje de error.
+- ✅ Pantallas del proyecto base con el `Bloc` conectado.
+- ⏳ **Parte 2 (login)**: crear `login/ui/bloc` y conectar `LoginScreen`.
+- ⏳ `HomeScreen`: pasarle los datos reales del usuario y que `Cerrar sesión`
+  llame a `signOut` antes de navegar.
+- ⏳ Confirmar las credenciales del proyecto si el profesor entrega unas nuevas.
+
+## Tests
 
 ```sh
 flutter analyze
 flutter test
 ```
+
+- `test/navigation_test.dart`: validaciones de login y registro.
+- `test/register_bloc_test.dart`: el caso de uso guarda el perfil con el `id`
+  que devuelve Auth y el Bloc emite `loading` → `success` o `error`.

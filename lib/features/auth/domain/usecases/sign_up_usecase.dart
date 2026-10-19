@@ -1,18 +1,21 @@
-import '../../../profile/domain/repositories/profile_repository.dart';
 import '../entities/auth_user.dart';
-import '../repositories/auth_repository.dart';
+import '../repository/auth_repository.dart';
+import '../repository/profile_repository.dart';
 
 /// Registro de usuario: un formulario, dos destinos.
 ///
-/// 1. Crea la cuenta en Supabase Auth (correo y contraseña).
-/// 2. Usa el `id` devuelto por Auth para guardar el perfil en `profiles`.
+/// Es la única pieza que conoce las dos columnas del mapa:
 ///
-/// Es el único caso de uso que conoce ambos repositorios.
+/// 1. **Auth**: crea la cuenta con correo y contraseña y devuelve el `id`.
+/// 2. **profiles**: guarda el perfil con ese `id`.
 class SignUpUseCase {
-  const SignUpUseCase(this._authRepository, this._profileRepository);
+  final AuthRepository authRepository;
+  final ProfileRepository profileRepository;
 
-  final AuthRepository _authRepository;
-  final ProfileRepository _profileRepository;
+  const SignUpUseCase({
+    required this.authRepository,
+    required this.profileRepository,
+  });
 
   Future<AuthUser> call({
     required String email,
@@ -20,15 +23,18 @@ class SignUpUseCase {
     required String username,
     required String fullName,
   }) async {
-    final user = await _authRepository.signUp(
+    // 1º Auth.
+    final user = await authRepository.signUp(
       email: email,
       password: password,
     );
 
-    await _profileRepository.createProfile(
+    // 2º profiles, con el id que devolvió Auth.
+    await profileRepository.createProfile(
       id: user.id,
       username: username,
       fullName: fullName,
+      email: email,
     );
 
     return user;
