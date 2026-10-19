@@ -353,6 +353,8 @@ Archivos: `supabase_auth_data_source.dart` y `auth_repository_impl.dart`.
   `null` y lo convierte en `AuthUser`.
 - `signIn` usa `_client.auth.signInWithPassword(...)` con la misma validación.
 - `signOut` usa `_client.auth.signOut()`.
+- Traduce los errores del SDK (`AuthException`) a `AppException`, el error de
+  dominio que sí pueden ver los blocs.
 - El repositorio solo delega.
 
 ### Paso 7 · Los datos del perfil
@@ -363,6 +365,8 @@ Archivos: `supabase_profile_data_source.dart` y
 - `createProfile` hace el `insert` en `profiles`; es el único archivo que
   traduce `fullName` (Dart) → `full_name` (columna).
 - `getProfile` hace `select().eq('id', id).single()` y arma el `Profile`.
+- Traduce `PostgrestException` a `AppException`, igual que el data source de
+  Auth.
 - El repositorio solo delega.
 
 ### Paso 8 · `main.dart`
@@ -476,14 +480,15 @@ HomeScreen (botón)
 
 ```sh
 flutter analyze   # 0 issues
-flutter test      # 11 tests
+flutter test      # 13 tests
 ```
 
 - `register_bloc_test.dart`: el caso de uso guarda el perfil con el `id` de Auth
-  y el Bloc emite `loading` → `success` o `failure`.
+  y el Bloc emite `loading` → `success` o `failure`; también verifica que el
+  mensaje de `AppException` llegue al estado.
 - `register_screen_test.dart`: validaciones, navegación con `Profile` y error.
 - `login_bloc_test.dart`: `loading` → `success` con el perfil y `failure` si
-  Auth falla (sin consultar `profiles`).
+  Auth falla (sin consultar `profiles`), incluido el mensaje de `AppException`.
 - `login_screen_test.dart`: navegación con `Profile`, error y campos vacíos.
 - `home_screen_test.dart`: muestra los datos y llama a `signOut` antes de
   volver a `/login`.
